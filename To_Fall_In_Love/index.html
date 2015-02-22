@@ -1,0 +1,79 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Spacebrew String</title>
+
+		<meta charset="utf-8">
+		<link rel="stylesheet" href="css/reset.css" type="text/css" media="screen" charset="utf-8" />
+		<link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+		<script type="text/javascript" src="js/jq.js"></script>
+		<script type="text/javascript" src="js/sb-1.4.1.js"></script>
+
+		<script type="text/javascript">
+		  
+			// when window loads call the setup method
+			$(window).on("load", setup);
+
+			// Spacebrew Object
+			var sb
+				, app_name = "lover"
+				;
+
+			function setup (){
+				var random_id = "000" + Math.floor(Math.random() * 1000)
+					;
+
+				app_name = app_name + ' ' + random_id.substring(random_id.length-3);
+
+				// setup spacebrew
+				sb = new Spacebrew.Client();  // create spacebrew client object
+
+				sb.name(app_name);
+				sb.description("This app allows strangers to have a virtual conversation"); 
+
+				sb.addPublish("MeText", "string", "" );
+				sb.addPublish("MeAnswer", "boolean", "false" );
+
+				sb.addSubscribe("YouText", "string" );
+
+				// configure the publication and subscription feeds
+				sb.onStringMessage = onStringMessage;		
+
+				// connect to spacbrew
+				sb.connect();  
+
+				// listen to button clicks
+				$("#button").on("mousedown", onMouseDown);
+			}
+
+			function onMouseDown (evt){
+				var newString = $("#string").val();// load text from input box
+				if (newString !== "") { // if input box is not blank
+					console.log("Sending message " + newString); 
+					sb.send("MeText", "string", newString);// send string to spacebrew
+					$("#string").val("");// clears the text box
+					$("#me").text(newString); // display the sent message in the browser         
+				}
+				sb.send("MeAnswer", "boolean", "true")
+				//sends boolean to next question
+			}
+
+			function onStringMessage( name, value ){
+				$("#you").text(value); //inputs other user's response
+			}
+	    </script>
+	</head>
+
+	<body>
+		<h2>Please respond below...</h2>
+		<div>
+			<input id="string"/>
+			<a class="button" id="button">Send</a>
+		</div>
+		<div>
+		<div class= "thought" id="you"></div>
+		<div class= "thought" id="me"></div> 
+		</div>
+	</body>
+
+</html>
